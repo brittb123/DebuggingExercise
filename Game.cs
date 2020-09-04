@@ -18,9 +18,22 @@ namespace HelloWorld
 
             while(_gameOver == false)
             {
-
+               
+                Start();
+                Update();
+                End();
+                
             }
 
+        }
+
+        //After all battles checks health 
+        void HealthCheck()
+        {
+            if (_playerHealth <= 0)
+            {
+                End();
+            }
         }
         //This function handles the battles for our ladder. roomNum is used to update the our opponent to be the enemy in the current room. 
         //turnCount is used to keep track of how many turns it took the player to beat the enemy
@@ -62,8 +75,9 @@ namespace HelloWorld
                     }
             }
 
+        
             //Loops until the player or the enemy is dead
-            while(_playerHealth >= 0 || enemyHealth >= 0)
+            while(_playerHealth >= 0 && enemyHealth >= 0)
             {
                 //Displays the stats for both charactersa to the screen before the player takes their turn
                 PrintStats(_playerName, _playerHealth, _playerDamage, _playerDefense);
@@ -76,7 +90,8 @@ namespace HelloWorld
                 if(input == '1')
                 {
                     BlockAttack(enemyHealth, _playerDamage, enemyDefense);
-                    Console.WriteLine("You dealt " + _playerDamage + " damage.");
+                    Console.WriteLine("\nYou dealt " + _playerDamage + " damage.");
+                    enemyHealth -= _playerDamage;
                     Console.Write("> ");
                     Console.ReadKey();
                 }
@@ -85,6 +100,7 @@ namespace HelloWorld
                 else
                 {
                     BlockAttack(_playerHealth, enemyAttack, _playerDefense);
+                    Console.WriteLine();
                     Console.WriteLine(enemyName + " dealt " + enemyAttack + " damage.");
                     Console.Write("> ");
                     Console.ReadKey();
@@ -94,6 +110,7 @@ namespace HelloWorld
                 Console.Clear();
                 //After the player attacks, the enemy takes its turn. Since the player decided not to defend, the block attack function is not called.
                 _playerHealth -= enemyAttack;
+                Console.WriteLine();
                 Console.WriteLine(enemyName + " dealt " + enemyAttack + " damage.");
                 Console.Write("> ");
                 Console.ReadKey();
@@ -105,18 +122,24 @@ namespace HelloWorld
 
         }
         //Decrements the health of a character. The attack value is subtracted by that character's defense
-        void BlockAttack(int opponentHealth, int attackVal, int opponentDefense)
+        void BlockAttack(int enemyHealth, int _playerDamage, int enemyDefense)
         {
-            int damage = attackVal - opponentDefense;
+            int damage = _playerDamage - enemyDefense;
             if(damage < 0)
             {
                 damage = 0;
             }
-            opponentHealth -= damage;
+            enemyHealth -= _playerDamage;
         }
         //Scales up the player's stats based on the amount of turns it took in the last battle
         void LevelUp(int turnCount)
         {
+            if (_playerHealth <= 0)
+            {
+
+                End();
+                
+            }
             //Subtract the amount of turns from our maximum level scale to get our current level scale
             int scale = levelScaleMax - turnCount;
             if(scale <= 0)
@@ -126,7 +149,21 @@ namespace HelloWorld
             _playerHealth += 10 * scale;
             _playerDamage *= scale;
             _playerDefense *= scale;
+            if (_playerHealth > 1)
+            {
+
+                if (turnCount < levelScaleMax)
+                {
+                    Console.WriteLine("\nYour speed and skill has leveled up! Also you are healed for the next fight!");
+                    _playerHealth += 25;
+                }
+            }
+           
         }
+
+
+        //Directions and input to go eitherWay
+        
         //Gets input from the player
         //Out's the char variable given. This variables stores the player's input choice.
         //The parameters option1 and option 2 displays the players current chpices to the screen
@@ -135,17 +172,21 @@ namespace HelloWorld
             //Initialize input
             input = ' ';
             //Loop until the player enters a valid input
-            while(input != '1' && input != '2')
-                Console.WriteLine("1." + option1);
-                Console.WriteLine("2." + option2);
+            while (input != '1' && input != '2')
+            {
+
+
+                Console.WriteLine("\n1." + option1);
+                Console.WriteLine("\n2." + option2);
                 Console.Write("> ");
                 input = Console.ReadKey().KeyChar;
+            }
         }
 
         //Prints the stats given in the parameter list to the console
         void PrintStats(string name, int health, int damage, int defense)
         {
-            Console.WriteLine("/n" + name);
+            Console.WriteLine("\n" + name);
             Console.WriteLine("Health: " + health);
             Console.WriteLine("Damage: " + damage);
             Console.WriteLine("Defense: " + defense);
@@ -159,17 +200,17 @@ namespace HelloWorld
             {
                 case 0:
                     {
-                        Console.WriteLine("A wizard blocks your path");
+                        Console.WriteLine("\nA wizard blocks your path");
                         break;
                     }
                 case 1:
                     {
-                        Console.WriteLine("A troll stands before you");
+                        Console.WriteLine("\nA troll stands before you");
                         break;
                     }
                 case 2:
                     {
-                        Console.WriteLine("A giant has appeared!");
+                        Console.WriteLine("\nA giant has appeared!");
                         break;
                     }
                 default:
@@ -180,13 +221,18 @@ namespace HelloWorld
             }
             int turnCount = 0;
             //Starts a battle. If the player survived the battle, level them up and then proceed to the next room.
-            if(StartBattle(roomNum, ref turnCount))
+             void BattleStarting()
             {
-                LevelUp(turnCount);
-                ClimbLadder(roomNum++);
-            }
-            _gameOver = true;
+               
 
+                if (StartBattle(roomNum, ref turnCount))
+                {
+                    LevelUp(turnCount);
+                    
+                    ClimbLadder(roomNum++);
+                }
+                _gameOver = true;
+            }
         }
 
         //Displays the character selection menu. 
@@ -255,9 +301,36 @@ namespace HelloWorld
         }
 
         //Repeated until the game ends
+        // The climb and battle Sqeuqence with leveling up check
         public void Update()
         {
-            ClimbLadder(0);   
+            int turnCount = 0;
+            ClimbLadder(0);
+            StartBattle(0, ref turnCount);
+            if (_playerHealth <= 0)
+            {
+                return;
+            }    
+            LevelUp(turnCount);
+            turnCount = 0;
+            ClimbLadder(1);
+            StartBattle(1, ref turnCount);
+            if (_playerHealth <= 0)
+            {
+                return;
+            }
+            LevelUp(turnCount);
+            turnCount = 0;
+            ClimbLadder(2);
+            StartBattle(2, ref turnCount);
+            if (_playerHealth <= 0)
+            {
+                return;
+            }
+            turnCount = 0;
+            LevelUp(turnCount);
+            ClimbLadder(3);
+
         }
 
         //Performed once when the game ends
@@ -266,11 +339,12 @@ namespace HelloWorld
             //If the player died print death message
             if(_playerHealth <= 0)
             {
-                Console.WriteLine("Failure");
+                Console.Clear();
+                Console.WriteLine("\nYour knees hit the ground as you perish. Game Over");
                 return;
             }
             //Print game over message
-            Console.WriteLine("Congrats");
+            Console.WriteLine("\nYour skill shows huge prmoise take care traveler you done well");
         }
     }
 }
