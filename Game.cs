@@ -12,6 +12,7 @@ namespace HelloWorld
         int _playerDamage = 20;
         int _playerDefense = 10;
         int levelScaleMax = 5;
+        Random random;
         //Run the game
         public void Run()
         {
@@ -60,7 +61,7 @@ namespace HelloWorld
                     {
                         enemyHealth = 80;
                         enemyAttack = 30;
-                        enemyDefense = 5;
+                        enemyDefense = 13;
                         enemyName = "Troll";
                         break;
                     }
@@ -69,7 +70,7 @@ namespace HelloWorld
                         
                         enemyHealth = 200;
                         enemyAttack = 40;
-                        enemyDefense = 10;
+                        enemyDefense = 16;
                         enemyName = "Giant";
                         break;
                     }
@@ -77,7 +78,7 @@ namespace HelloWorld
 
         
             //Loops until the player or the enemy is dead
-            while(_playerHealth >= 0 && enemyHealth >= 0)
+            while(_playerHealth > 0 && enemyHealth > 0)
             {
                 //Displays the stats for both charactersa to the screen before the player takes their turn
                 PrintStats(_playerName, _playerHealth, _playerDamage, _playerDefense);
@@ -90,10 +91,26 @@ namespace HelloWorld
                 if(input == '1')
                 {
                     BlockAttack(enemyHealth, _playerDamage, enemyDefense);
-                    Console.WriteLine("\nYou dealt " + _playerDamage + " damage.");
-                    enemyHealth -= _playerDamage;
-                    Console.Write("> ");
-                    Console.ReadKey();
+                    random = new Random();
+                    int chanceToHit = random.Next(1, 20);
+
+                   
+                    if (chanceToHit < enemyDefense)
+                    {
+                        Console.WriteLine("You swing your best but could not land a strike!");
+                        _playerDamage = 0;
+                        Console.ReadKey();
+
+
+                    }
+                    else if (chanceToHit > enemyDefense)
+                    {
+                        Console.WriteLine("You swing with dead aim and strike the target");
+                        enemyHealth -= _playerDamage;
+                        Console.ReadKey();
+                    }
+
+                    
                 }
                 //If the player decides to defend the enemy just takes their turn. However this time the block attack function is
                 //called instead of simply decrementing the health by the enemy's attack value.
@@ -123,16 +140,19 @@ namespace HelloWorld
         }
         //Decrements the health of a character. The attack value is subtracted by that character's defense
         void BlockAttack(int enemyHealth, int _playerDamage, int enemyDefense)
-        {
-            int damage = _playerDamage - enemyDefense;
+
+        { 
+      
+
+            int damage = _playerDamage;
             if(damage < 0)
             {
                 damage = 0;
             }
-            enemyHealth -= _playerDamage;
+            
         }
         //Scales up the player's stats based on the amount of turns it took in the last battle
-        void LevelUp(int turnCount)
+        void UpgradeStats(int turnCount)
         {
             if (_playerHealth <= 0)
             {
@@ -161,6 +181,53 @@ namespace HelloWorld
            
         }
 
+        char upgradepoint = ' ';
+        void UpgradeStats(int turncount, string query)
+        {
+            if (turncount < levelScaleMax && _playerHealth > 0)
+            {
+                Console.WriteLine("Well look at this you have potetional to upgrade your skills!");
+                Console.WriteLine("There is many you can upgrade damage, health, defense!");
+                Console.WriteLine("Press 1 to upgrade Health");
+                Console.WriteLine("Press 2 to upgrade Defense");
+                Console.WriteLine("Press 3 to upgrade Damage");
+               char upgradepoint = Console.ReadKey().KeyChar;
+                while (upgradepoint != '1' || upgradepoint != 2 || upgradepoint != 3)
+                {
+
+
+                    if (upgradepoint == '1')
+                    {
+                        _playerHealth += 10;
+                        Console.WriteLine("The fuel of your skills drive your health higher!");
+                        Console.ReadKey();
+                        Console.Clear();
+                        _playerHealth = 110;
+                        break;
+                    }
+
+                    else if (upgradepoint == '2')
+                    {
+                        _playerDefense += 15;
+                        Console.WriteLine("The blood of battle stirs more in you increasing defense");
+                        Console.ReadKey();
+                        Console.Clear();
+                        
+                        break;
+                    }
+                    else if (upgradepoint == '3')
+                    {
+                        _playerDamage += 20;
+                        
+                        Console.WriteLine("\nThe rush of battle runs like a river in you, you gain more damage output");
+                        Console.ReadKey();
+                        Console.Clear();
+                        break;
+                    }
+
+                }
+            } 
+        }
 
         //Directions and input to go eitherWay
         
@@ -227,7 +294,7 @@ namespace HelloWorld
 
                 if (StartBattle(roomNum, ref turnCount))
                 {
-                    LevelUp(turnCount);
+                    UpgradeStats(turnCount, "What do you want to upgrade");
                     
                     ClimbLadder(roomNum++);
                 }
@@ -310,8 +377,8 @@ namespace HelloWorld
             if (_playerHealth <= 0)
             {
                 return;
-            }    
-            LevelUp(turnCount);
+            }
+            UpgradeStats(turnCount, "What do you want to upgrade");
             turnCount = 0;
             ClimbLadder(1);
             StartBattle(1, ref turnCount);
@@ -319,7 +386,7 @@ namespace HelloWorld
             {
                 return;
             }
-            LevelUp(turnCount);
+            UpgradeStats(turnCount, "What do you want to upgrade");
             turnCount = 0;
             ClimbLadder(2);
             StartBattle(2, ref turnCount);
@@ -328,7 +395,7 @@ namespace HelloWorld
                 return;
             }
             turnCount = 0;
-            LevelUp(turnCount);
+            UpgradeStats(turnCount, "What do you want to upgrade");
             ClimbLadder(3);
 
         }
