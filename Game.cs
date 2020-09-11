@@ -4,14 +4,134 @@ using System.Text;
 
 namespace HelloWorld
 {
+    public struct Item
+    {
+        public string dagger;
+        public int daggerdmg;
+        public string sword;
+        public int sworddmg;
+        public string bow;
+        public int bowdmg;
+    }
+    //players struct for health, damage, armor, and name
+    public struct Player
+    {
+        public string playername;
+        public int health;
+        public int armor;
+        public int damage;
+
+    }
     class Game
     {
+        //Items all in a struct 
+     
+        //Weapon select for player 1 then player 2
+        int currentWeaponDmg = ' ';
+        char weaponusing1 = ' ';
+        int WeaponSelect1()
+        {
+            while (weaponusing1 != '1' || weaponusing1 != '2' || weaponusing1 != '3')
+            {
+
+                Console.WriteLine("Now that we know who you two are" + Player1.playername + "Choose a weapon");
+                Console.WriteLine("Press 1 for a dagger");
+                Console.WriteLine("Press 2 for a sword");
+                Console.WriteLine("Press 3 for a bow");
+                weaponusing1 = Console.ReadKey().KeyChar;
+                if (weaponusing1 == '1')
+                {
+                    Player1.damage = 25;
+                    return Player1.damage;
+                }
+               else if (weaponusing1 == '2')
+                {
+                    Player1.damage = 20;
+                    return Player1.damage;
+                }
+                else if (weaponusing1 == '3')
+                {
+                    Player1.damage = 20;
+                    return Player1.damage;
+                }
+                
+            }
+             return Player1.damage;
+        }
+        int WeaponSelect()
+        {
+            while (weaponusing1 != '1' || weaponusing1 != '2' || weaponusing1 != '3')
+            {
+
+                Console.WriteLine("Now that the first chosen " + Player2.playername + " Choose a weapon");
+                Console.WriteLine("Press 1 for a dagger");
+                Console.WriteLine("Press 2 for a sword");
+                Console.WriteLine("Press 3 for a bow");
+                weaponusing1 = Console.ReadKey().KeyChar;
+                if (weaponusing1 == '1')
+                {
+                    Player2.damage = 25;
+                    return Player2.damage;
+                }
+                else if (weaponusing1 == '2')
+                {
+                    Player2.damage = 30;
+                    return Player2.damage;
+                }
+                else if (weaponusing1 == '3')
+                {
+                    Player2.damage = 40;
+                    return Player2.damage;
+                }
+
+            }
+            return Player2.damage;
+        }
+        //weapon damage values changing this will change damagw output
+       
+        //players health and armor change to modify
+        void PlayerValues()
+        {
+            Player1.health = 100;
+            Player2.health = 100;
+            Player1.armor = 20;
+            Player2.armor = 20;
+
+        }
         bool _gameOver = false;
         string _playerName = "Hero";
         int _playerHealth = 120;
         int _playerDamage = 20;
         int _playerDefense = 10;
         int levelScaleMax = 5;
+        //Player One's stats
+      Player Player1;
+       Player Player2;
+
+       string Player1Names(ref Player player1)
+        {
+
+            Console.WriteLine("Please type your name player 1!");
+
+            Player1.playername = Console.ReadLine();
+            Console.WriteLine("Player's Name: " + Player1.playername);
+   
+            return Player1.playername;
+
+        }
+        string Player2Name(ref Player player2)
+        {
+
+            Console.WriteLine("Please type your name player 2!");
+
+            Player2.playername = Console.ReadLine();
+            Console.WriteLine("Player's Name: " + Player2.playername);
+            return Player2.playername;
+
+        }
+
+
+        
         Random random;
         //Run the game
         public void Run()
@@ -21,6 +141,8 @@ namespace HelloWorld
             {
                
                 Start();
+               
+                Battle();
                 Update();
                 End();
                 
@@ -38,51 +160,21 @@ namespace HelloWorld
         }
         //This function handles the battles for our ladder. roomNum is used to update the our opponent to be the enemy in the current room. 
         //turnCount is used to keep track of how many turns it took the player to beat the enemy
-        bool StartBattle(int roomNum, ref int turnCount)
+        bool StartBattle()
         {
             //initialize default enemy stats
             int enemyHealth = 0;
             int enemyAttack = 0;
             int enemyDefense = 0;
             string enemyName = "";
-            //Changes the enemy's default stats based on our current room number. 
-            //This is how we make it seem as if the player is fighting different enemies
-            switch (roomNum)
-            {
-                case 0:
-                    {
-                        enemyHealth = 100;
-                        enemyAttack = 20;
-                        enemyDefense = 5;
-                        enemyName = "Wizard";
-                        break;
-                    }
-                case 1:
-                    {
-                        enemyHealth = 80;
-                        enemyAttack = 30;
-                        enemyDefense = 13;
-                        enemyName = "Troll";
-                        break;
-                    }
-                case 2:
-                    {
-                        
-                        enemyHealth = 200;
-                        enemyAttack = 40;
-                        enemyDefense = 16;
-                        enemyName = "Giant";
-                        break;
-                    }
-            }
-
+          
         
             //Loops until the player or the enemy is dead
-            while(_playerHealth > 0 && enemyHealth > 0)
+            while(Player1.health > 0 && Player2.health > 0)
             {
                 //Displays the stats for both charactersa to the screen before the player takes their turn
-                PrintStats(_playerName, _playerHealth, _playerDamage, _playerDefense);
-                PrintStats(enemyName, enemyHealth, enemyAttack, enemyDefense);
+                PrintStats(Player1.playername, Player1.health, Player1.damage, Player1.armor);
+                PrintStats(Player2.playername, Player2.health, Player2.damage, Player2.armor);
 
                 //Get input from the player
                 char input;
@@ -91,26 +183,10 @@ namespace HelloWorld
                 if(input == '1')
                 {
                     BlockAttack(enemyHealth, _playerDamage, enemyDefense);
-                    random = new Random();
-                    int chanceToHit = random.Next(1, 20);
-
-                   
-                    if (chanceToHit < enemyDefense)
-                    {
-                        Console.WriteLine("You swing your best but could not land a strike!");
-                        _playerDamage = 0;
-                        Console.ReadKey();
-
-
-                    }
-                    else if (chanceToHit > enemyDefense)
-                    {
-                        Console.WriteLine("You swing with dead aim and strike the target");
-                        enemyHealth -= _playerDamage;
-                        Console.ReadKey();
-                    }
-
-                    
+                    Console.WriteLine("\nYou dealt " + _playerDamage + " damage.");
+                    enemyHealth -= _playerDamage;
+                    Console.Write("> ");
+                    Console.ReadKey();
                 }
                 //If the player decides to defend the enemy just takes their turn. However this time the block attack function is
                 //called instead of simply decrementing the health by the enemy's attack value.
@@ -121,7 +197,7 @@ namespace HelloWorld
                     Console.WriteLine(enemyName + " dealt " + enemyAttack + " damage.");
                     Console.Write("> ");
                     Console.ReadKey();
-                    turnCount++;
+                    
                     Console.Clear();
                 }
                 Console.Clear();
@@ -131,7 +207,7 @@ namespace HelloWorld
                 Console.WriteLine(enemyName + " dealt " + enemyAttack + " damage.");
                 Console.Write("> ");
                 Console.ReadKey();
-                turnCount++;
+                
                 
             }
             //Return whether or not our player died
@@ -140,16 +216,85 @@ namespace HelloWorld
         }
         //Decrements the health of a character. The attack value is subtracted by that character's defense
         void BlockAttack(int enemyHealth, int _playerDamage, int enemyDefense)
-
-        { 
-      
-
-            int damage = _playerDamage;
+        {
+            int damage = _playerDamage - enemyDefense;
             if(damage < 0)
             {
                 damage = 0;
             }
-            
+            enemyHealth -= _playerDamage;
+        }
+
+        void Battle()
+        {
+           while (Player1.health >= 0 && Player2.health >= 0)
+            {
+                char input = ' ';
+
+                Console.Clear();
+                Console.WriteLine("\nPlayer One: " + Player1.playername);
+                Console.WriteLine(Player1.playername + "'s health:" + Player1.health);
+                Console.WriteLine(Player1.playername + "'s armor: " + Player1.armor);
+                Console.WriteLine();
+                Console.WriteLine();
+                Console.WriteLine("\nPlayer Two: " + Player2.playername);
+                Console.WriteLine(Player1.playername + "'s health:" + Player2.health);
+                Console.WriteLine(Player2.playername + "'s armor: " + Player2.armor);
+                Console.WriteLine("\nPlayer One's Turn:");
+                Console.WriteLine("\nPress 1 to attack or Press 2 to defend");
+                input = Console.ReadKey().KeyChar;
+                if (input == '1')
+                {
+                    if (Player1.damage > Player2.armor)
+                    {
+                        Console.WriteLine(Player1.playername + " jumps and front flips whil attacking and pierced" +
+                            Player2.playername + "'s armor");
+                        Console.WriteLine(Player1.playername + " dealt " + Player1.damage);
+                        Player2.health -= Player1.damage;
+                    }
+                    else
+                    {
+                        Console.WriteLine(Player1.playername + "didn't deal damage to health but breaks oppenents armor");
+                        Player2.armor -= 5;
+                    }
+                }
+
+                if (input == '2')
+                {
+                    Console.WriteLine(Player1.playername + "Braces for damage, boosting defense!");
+                    Player1.armor += 5;
+                }
+                Console.WriteLine("\nPlayer One: " + Player1.playername);
+                Console.WriteLine(Player1.playername + "'s health:" + Player1.health);
+                Console.WriteLine(Player1.playername + "'s armor: " + Player1.armor);
+                Console.WriteLine();
+                Console.WriteLine();
+                Console.WriteLine("\nPlayer Two: " + Player2.playername);
+                Console.WriteLine(Player1.playername + "'s health:" + Player2.health);
+                Console.WriteLine(Player2.playername + "'s armor: " + Player2.armor);
+                Console.WriteLine("Player Two's Turn");
+                Console.WriteLine("Press 1 to attack or Press 2 to defend");
+                char input2 = ' ';
+                input2 = Console.ReadKey().KeyChar;
+                if (input2 == '1')
+                {
+                    if (Player2.damage > Player1.armor)
+                    {
+                        Console.WriteLine();
+                        Console.WriteLine(Player2.playername + "combat rolls and gets a piercing hit through" +
+                            Player1.playername + "'s armor");
+                        Console.WriteLine(Player2.playername + " dealt " + Player2.damage);
+                        Player1.health -= Player2.damage;
+
+                    }
+                }
+
+                if (input2 == '2')
+                {
+                    Console.WriteLine(Player1.playername + "Braces for damage boosting defense!");
+                    Player2.armor += 5;
+                }
+            }
         }
         //Scales up the player's stats based on the amount of turns it took in the last battle
         void UpgradeStats(int turnCount)
@@ -288,18 +433,7 @@ namespace HelloWorld
             }
             int turnCount = 0;
             //Starts a battle. If the player survived the battle, level them up and then proceed to the next room.
-             void BattleStarting()
-            {
-               
-
-                if (StartBattle(roomNum, ref turnCount))
-                {
-                    UpgradeStats(turnCount, "What do you want to upgrade");
-                    
-                    ClimbLadder(roomNum++);
-                }
-                _gameOver = true;
-            }
+           
         }
 
         //Displays the character selection menu. 
@@ -364,54 +498,39 @@ namespace HelloWorld
         //Performed once when the game begins
         public void Start()
         {
-            SelectCharacter();
+            Player1Names(ref Player1);
+            Player2Name(ref Player2);
+            PlayerValues();
+            WeaponSelect1();
+            WeaponSelect();
+           
+            
+            
+
+
         }
 
         //Repeated until the game ends
         // The climb and battle Sqeuqence with leveling up check
         public void Update()
         {
-            int turnCount = 0;
-            ClimbLadder(0);
-            StartBattle(0, ref turnCount);
-            if (_playerHealth <= 0)
-            {
-                return;
-            }
-            UpgradeStats(turnCount, "What do you want to upgrade");
-            turnCount = 0;
-            ClimbLadder(1);
-            StartBattle(1, ref turnCount);
-            if (_playerHealth <= 0)
-            {
-                return;
-            }
-            UpgradeStats(turnCount, "What do you want to upgrade");
-            turnCount = 0;
-            ClimbLadder(2);
-            StartBattle(2, ref turnCount);
-            if (_playerHealth <= 0)
-            {
-                return;
-            }
-            turnCount = 0;
-            UpgradeStats(turnCount, "What do you want to upgrade");
-            ClimbLadder(3);
-
+            Console.WriteLine("Welcome to the arena! Player 1 please put your name");
+            Battle();
+           
         }
 
         //Performed once when the game ends
         public void End()
         {
-            //If the player died print death message
-            if(_playerHealth <= 0)
+            if (Player1.health < 0)
+                Console.WriteLine("Congrats Player 1 you fought and came out victorios!");
+            else
             {
-                Console.Clear();
-                Console.WriteLine("\nYour knees hit the ground as you perish. Game Over");
-                return;
+                Console.WriteLine("Congrats Player 2 You reigned over your oppenent!");
             }
-            //Print game over message
-            Console.WriteLine("\nYour skill shows huge prmoise take care traveler you done well");
         }
+        
+
+
     }
 }
